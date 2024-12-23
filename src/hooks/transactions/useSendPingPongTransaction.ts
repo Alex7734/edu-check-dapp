@@ -14,7 +14,6 @@ import {
 } from '@/hooks/sdkDappHooks';
 import { GAS_PRICE, SessionEnum, VERSION } from '@/localConstants';
 import { getChainId } from '@/utils/getChainId';
-import { smartContract } from '@/utils/smartContract';
 import {
   PingRawProps,
   PingPongServiceProps,
@@ -23,6 +22,7 @@ import {
 import { newTransaction } from '@/helpers/sdkDappHelpers';
 import { Transaction } from '@/types/sdkCoreTypes';
 import { Address } from '@multiversx/sdk-core';
+import { smartContractService } from '@/utils';
 
 type PingPongTransactionProps = {
   type: SessionEnum;
@@ -64,6 +64,12 @@ export const useSendPingPongTransaction = ({
     async ({ amount, callbackRoute }: PingRawProps) => {
       clearAllTransactions();
 
+      const smartContract = smartContractService.getSmartContract();
+
+      if (!smartContract) {
+        throw new Error('Smart contract not initialized');
+      }
+
       const pingTransaction = smartContract.methodsExplicit
         .ping()
         .withValue(amount ?? '0')
@@ -87,6 +93,12 @@ export const useSendPingPongTransaction = ({
   const sendPongTransactionFromAbi = useCallback(
     async ({ callbackRoute }: PongRawProps) => {
       clearAllTransactions();
+      
+      const smartContract = smartContractService.getSmartContract();
+
+      if (!smartContract) {
+        throw new Error('Smart contract not initialized');
+      }
 
       const pongTransaction = smartContract.methodsExplicit
         .pong()
